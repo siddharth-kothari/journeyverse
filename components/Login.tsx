@@ -5,6 +5,8 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { getProviders, signIn } from "next-auth/react";
 import { LoginHelper } from "@/utils/loginHelper";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { google_logo } from "@/assets";
 
 interface Errors {
   username?: string;
@@ -139,7 +141,7 @@ const Login = () => {
             }}
             className=" w-full py-3 px-5 bg-white shadow-xl rounded-md flex gap-2 justify-center items-center cursor-pointer"
           >
-            {/* <Image src={google_logo} alt="" className="w-[20px] h-[20px]" /> */}
+            <Image src={google_logo} alt="" className="w-[20px] h-[20px]" />
             <button>Google</button>
           </div>
         </div>

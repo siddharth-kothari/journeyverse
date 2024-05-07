@@ -131,9 +131,9 @@ const Header = () => {
         )}
         {!user && (
           <div className="hidden md:block">
-            <button onClick={() => signIn()} className="mr-2">
+            <Link href="/login" className="mr-2">
               Sign In
-            </button>
+            </Link>
             <Link
               href="/register"
               className="text-black bg-white border-0 px-2 py-1 rounded"
