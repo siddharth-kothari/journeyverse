@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { api } from "../../index";
 import { User, Account } from "next-auth";
+import { query } from "@/config/db";
 
 type SignInCallbackParams = {
   user: User;
@@ -34,6 +35,20 @@ const signInCallback: (
 
       //   return true;
       // }
+      const results = await query({
+        query: "SELECT * FROM users WHERE email = ?",
+        data: [user.email],
+      });
+
+      if (results.length == 0) {
+        const [newUser]: any = await query({
+          query: "INSERT INTO users(name,email) VALUES(?,?)",
+          data: [user.name, user.email],
+        });
+
+        return true;
+      }
+
       return true;
     } catch (error) {
       ////console.log("Error saving user: ", error);

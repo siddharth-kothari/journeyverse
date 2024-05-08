@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { api } from '@/app/api';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import { LoginHelper } from '@/utils/loginHelper';
-import defaultPic from './../assets/default-avatar.png'
-import Image from 'next/image'
-
-
+import React, { useState } from "react";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { api } from "@/app/api";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { LoginHelper } from "@/utils/loginHelper";
+import defaultPic from "./../assets/default-avatar.png";
+import Image from "next/image";
 
 const Register: React.FC = () => {
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [location, setLocation] = useState('');
-  const [bio, setBio] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [location, setLocation] = useState("");
+  const [bio, setBio] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState<
+    string | null
+  >(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -38,36 +38,34 @@ const Register: React.FC = () => {
     bio?: string;
   }
 
-  const handleSubmit = async(event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    
 
     // Validate form fields
     const validationErrors: Errors = {};
-    if (name.trim() === '') {
-      validationErrors.name = 'Name is required';
+    if (name.trim() === "") {
+      validationErrors.name = "Name is required";
     }
-    if (username.trim() === '') {
-      validationErrors.username = 'Username is required';
+    if (username.trim() === "") {
+      validationErrors.username = "Username is required";
     }
-    if (email.trim() === '') {
-      validationErrors.email = 'Email is required';
+    if (email.trim() === "") {
+      validationErrors.email = "Email is required";
     }
-    if (password.trim() === '') {
-      validationErrors.password = 'Password is required';
+    if (password.trim() === "") {
+      validationErrors.password = "Password is required";
     }
-    if (confirmPassword.trim() === '') {
-      validationErrors.confirmPassword = 'Confirm Password is required';
+    if (confirmPassword.trim() === "") {
+      validationErrors.confirmPassword = "Confirm Password is required";
     }
     if (password !== confirmPassword) {
-      validationErrors.password = 'Passwords do not match';
+      validationErrors.password = "Passwords do not match";
     }
-    if (location.trim() === '') {
-      validationErrors.location = 'Confirm Password is required';
+    if (location.trim() === "") {
+      validationErrors.location = "Location Password is required";
     }
-    if (bio.trim() === '') {
-      validationErrors.bio = 'Confirm Password is required';
+    if (bio.trim() === "") {
+      validationErrors.bio = "Bio Password is required";
     }
 
     if (Object.keys(validationErrors).length > 0) {
@@ -82,69 +80,64 @@ const Register: React.FC = () => {
     // console.log('Password:', password);
     // console.log('Profile Picture:', profilePicture);
 
-      try {
+    try {
+      const data1: any = new FormData();
+      data1.append("files", profilePicture, profilePicture?.name);
 
-        const data = new FormData();
-        data.append('files', profilePicture, profilePicture.name);
-        const response = await axios.post('http://localhost:1337/api/upload', data)
+      const response = await axios.post(
+        "http://localhost:3000/api/upload",
+        data1
+      );
+      console.log("response", response.data); // Accessing the data property directly
 
-        
+      //console.log("response", res);
 
-        if(response.status == 200){
-          const userData = {
-            
-              username: username,
-              email: email,
-              password: password,
-              name:name,
-              bio:bio,
-              location:location,
-              image:[response.data[0].id]
-            
-            
-          };
-  
-          var body = JSON.stringify(userData);
-  
-          const { data }  = await api.post('http://localhost:1337/api/auth/local/register', body )
-          const user = data;
-          console.log(user,data);
-
-          if(user){
-            const loginres = await LoginHelper({
-              username,
-              password
-            });
-
-            if(loginres && loginres.ok){
-
-            setName('');
-            setUsername('');
-            setEmail('');
-            setPassword('');
-            setLocation('');
-            setBio('');
-            setConfirmPassword('');
+      if (response.data.status == 201) {
+        const userData = {
+          username: username,
+          email: email,
+          password: password,
+          name: name,
+          bio: bio,
+          location: location,
+          image: [response.data.data],
+        };
+        var body = JSON.stringify(userData);
+        const { data } = await api.post(
+          "http://localhost:3000/api/register",
+          body
+        );
+        const user = data;
+        console.log(user, data);
+        if (user) {
+          const loginres = await LoginHelper({
+            username,
+            password,
+          });
+          if (loginres && loginres.ok) {
+            setName("");
+            setUsername("");
+            setEmail("");
+            setPassword("");
+            setLocation("");
+            setBio("");
+            setConfirmPassword("");
             setProfilePicture(null);
             setProfilePicturePreview(null);
-            setErrors({});    
-            router.push('/');
+            setErrors({});
+            router.push("/");
           }
-
-          } else {
-            return null
-          }
-
         } else {
-          alert("something went wrong")
+          return null;
         }
-        
-      } catch (error) {
-        alert(error)
+      } else {
+        alert("something went wrong");
       }
-      
+    } catch (error) {
+      alert(error);
+    }
+
     // Reset the form fields and errors
-    
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,23 +164,34 @@ const Register: React.FC = () => {
   return (
     <div className="flex items-center justify-center">
       <div className="max-w-xl w-full mx-5 my-24 md:m-28 p-6 bg-black rounded shadow-md">
-        <h2 className="text-3xl font-bold mb-6 text-center text-white">Register</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center text-white">
+          Register
+        </h2>
         <form onSubmit={handleSubmit}>
-        <div className=" w-fit mx-auto mb-4 items-center">
+          <div className=" w-fit mx-auto mb-4 items-center">
             <div className="mx-auto relative">
               {profilePicturePreview ? (
-                <img src={profilePicturePreview} alt="Profile Preview" className="mt-2 max-w-[8rem] object-cover object-center rounded-[50%]" />
-              ) : (
-               <>
-                <Image
-                  className='mt-2 max-w-[8rem] relative object-cover  object-center rounded-[50%]'
-                      src={defaultPic}
-                      alt=" Default Profile Preview"
+                <img
+                  src={profilePicturePreview}
+                  alt="Profile Preview"
+                  className="mt-2 max-w-[8rem] object-cover object-center rounded-[50%]"
                 />
-                  <label className="w-full absolute bottom-0 overflow-hidden text-center text-white h-[25%] bg-[#000]/40 cursor-pointer hover:cursor-pointer" htmlFor='profilePicture'>Browse</label>
+              ) : (
+                <>
+                  <Image
+                    className="mt-2 max-w-[8rem] relative object-cover  object-center rounded-[50%]"
+                    src={defaultPic}
+                    alt=" Default Profile Preview"
+                  />
+                  <label
+                    className="w-full absolute bottom-0 overflow-hidden text-center text-white h-[25%] bg-[#000]/40 cursor-pointer hover:cursor-pointer"
+                    htmlFor="profilePicture"
+                  >
+                    Browse
+                  </label>
                 </>
               )}
-          
+
               <input
                 type="file"
                 id="profilePicture"
@@ -196,21 +200,20 @@ const Register: React.FC = () => {
                 onChange={handleFileChange}
               />
             </div>
-            
-            
-              
-            
           </div>
-          <div className='flex justify-between items-center gap-4'>
+          <div className="flex justify-between items-center gap-4">
             <div className="mb-4">
-              <label htmlFor="name" className="block text-white text-sm font-medium mb-2">
+              <label
+                htmlFor="name"
+                className="block text-white text-sm font-medium mb-2"
+              >
                 Name
               </label>
               <input
                 type="text"
                 id="name"
                 className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
+                  errors.name ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Enter your name"
                 value={name}
@@ -221,14 +224,17 @@ const Register: React.FC = () => {
               )}
             </div>
             <div className="mb-4">
-              <label htmlFor="username" className="block text-white text-sm font-medium mb-2">
+              <label
+                htmlFor="username"
+                className="block text-white text-sm font-medium mb-2"
+              >
                 Username
               </label>
               <input
                 type="text"
                 id="username"
                 className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
-                  errors.username ? 'border-red-500' : 'border-gray-300'
+                  errors.username ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Enter your username"
                 value={username}
@@ -239,16 +245,19 @@ const Register: React.FC = () => {
               )}
             </div>
           </div>
-          <div className='flex justify-between items-center gap-4'>
+          <div className="flex justify-between items-center gap-4">
             <div className="mb-4">
-              <label htmlFor="email" className="block text-white text-sm font-medium mb-2">
+              <label
+                htmlFor="email"
+                className="block text-white text-sm font-medium mb-2"
+              >
                 Email
               </label>
               <input
                 type="email"
                 id="email"
                 className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
+                  errors.email ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Enter your email"
                 value={email}
@@ -259,70 +268,79 @@ const Register: React.FC = () => {
               )}
             </div>
             <div className="mb-4 ">
-            <label htmlFor="location" className="block text-white text-sm font-medium mb-2">
-              Location
-            </label>
-            <div className="relative">
-            <input
-              
-              id="location"
-              className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
-                errors.location ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Enter your location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-            
+              <label
+                htmlFor="location"
+                className="block text-white text-sm font-medium mb-2"
+              >
+                Location
+              </label>
+              <div className="relative">
+                <input
+                  id="location"
+                  className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
+                    errors.location ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter your location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+              {errors.location && (
+                <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+              )}
             </div>
-            {errors.location && (
-              <p className="text-red-500 text-sm mt-1">{errors.location}</p>
-            )}
-          </div>
           </div>
 
-          <div className='flex justify-between items-center gap-4'>
+          <div className="flex justify-between items-center gap-4">
             <div className="mb-4 ">
-              <label htmlFor="password" className="block text-white text-sm font-medium mb-2">
+              <label
+                htmlFor="password"
+                className="block text-white text-sm font-medium mb-2"
+              >
                 Password
               </label>
               <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button
-                type="button"
-                className="absolute top-[30%] right-2 focus:outline-none"
-                onClick={togglePasswordVisibility}
-              >
-                {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5 text-white" />
-                ) : (
-                  <EyeIcon className="h-5 w-5 text-white" />
-                )}
-              </button>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
+                    errors.password ? "border-red-500" : "border-gray-300"
+                  }`}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="absolute top-[30%] right-2 focus:outline-none"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5 text-white" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5 text-white" />
+                  )}
+                </button>
               </div>
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}
             </div>
             <div className="mb-4 ">
-              <label htmlFor="confirmPassword" className="block text-white text-sm font-medium mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-white text-sm font-medium mb-2"
+              >
                 Confirm Password
               </label>
               <div className="relative">
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
                   className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                    errors.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-300"
                   }`}
                   placeholder="Confirm your password"
                   value={confirmPassword}
@@ -340,37 +358,40 @@ const Register: React.FC = () => {
                   )}
                 </button>
               </div>
-              
+
               {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
           </div>
-          
+
           <div className="mb-4 ">
-            <label htmlFor="bio" className="block text-white text-sm font-medium mb-2">
+            <label
+              htmlFor="bio"
+              className="block text-white text-sm font-medium mb-2"
+            >
               Bio
             </label>
             <div className="relative">
               <textarea
-                
                 id="bio"
                 className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
-                  errors.bio ? 'border-red-500' : 'border-gray-300'
+                  errors.bio ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Confirm your password"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               />
-              
             </div>
-            
+
             {errors.bio && (
               <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
             )}
           </div>
-          
-          <div className='w-full flex'>
+
+          <div className="w-full flex">
             <button
               type="submit"
               className="w-[40%] mx-auto bg-white text-black py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
