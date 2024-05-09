@@ -37,10 +37,6 @@ const Login = () => {
       return;
     }
 
-    // Process the form submission logic here
-    console.log("Username:", username);
-    console.log("Password:", password);
-
     const loginres = await LoginHelper({
       username,
       password,

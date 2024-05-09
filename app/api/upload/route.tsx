@@ -14,10 +14,6 @@ const cors = Cors({
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const POST = async (req: Request) => {
-  // Run the cors middleware
-
-  // await runMiddleware(req, cors);
-
   const formData: any = await req.formData();
 
   const file = formData.get("files");
@@ -38,7 +34,7 @@ export const POST = async (req: Request) => {
   const fileContents = await file.arrayBuffer();
 
   // Generate a unique filename
-  const filename = `${Date.now()}-${file.name.replaceAll(" ", "_")}`;
+  const filename = `${Date.now()}_${file.name.replaceAll(" ", "_")}`;
 
   try {
     await writeFile(

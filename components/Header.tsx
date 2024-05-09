@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import HamburgerMenu from "./HamBurgerMenu";
+import HamburgerMenu from "@/components/HamBurgerMenu";
 import Link from "next/link";
 import {
   ChevronDownIcon,
@@ -9,7 +9,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Loading from "@/app/loading";
 
 const Header = () => {
@@ -23,9 +23,11 @@ const Header = () => {
   if (status === "loading") {
     return <Loading />;
   }
-  const user = session?.user;
-  var name = user?.user?.name.split(" ");
-  var letter = user?.user?.name.charAt(0);
+  const user: any = session?.user;
+  console.log(session?.user);
+  var name = session?.user?.name.split(" ") ?? "User";
+
+  var letter = session?.user?.name.charAt(0);
 
   const router = useRouter();
 
@@ -87,7 +89,7 @@ const Header = () => {
               </div>
             </div>
           </>} */}
-        {status != "loading" && user && (
+        {status !== "loading" && user && (
           <div className="hidden md:block">
             <div
               className="relative leading-10"
@@ -95,7 +97,18 @@ const Header = () => {
               onMouseLeave={toggleProfileDropdown}
             >
               <div className="flex items-center gap-1 cursor-pointer">
-                Hi, {name[0]}{" "}
+                <div className="flex items-center gap-3 cursor-pointer">
+                  <img
+                    src={`/uploads/${session?.user?.image}`}
+                    alt="user image"
+                    className="rounded-[50%] w-10 h-10 object-fill"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.png";
+                      e.currentTarget.onerror = null;
+                    }}
+                  />
+                  Hi, {name[0]}{" "}
+                </div>
                 <ChevronDownIcon
                   className={`h-4 w-4 ${
                     isProfileDropdownOpen

@@ -5,36 +5,56 @@ import { query } from "@/config/db";
 export const POST = async (req: Request) => {
   const data = await req.json();
 
-  console.log("userData", data.username);
-
   try {
     //const { data } = await api.post("/auth/local/register", userData);
 
-    const results = await query({
+    const emailExists = await query({
       query: "SELECT * FROM users WHERE email = ?",
       data: [data.email],
     });
 
-    console.log("result", results);
+    const usernameExists = await query({
+      query: "SELECT * FROM users WHERE username = ?",
+      data: [data.username],
+    });
 
-    // Assuming query function returns an object with a property `newUser`
+    if (emailExists.length == 0) {
+      if (usernameExists.length == 0) {
+        const result = await query({
+          query:
+            "INSERT INTO users(name,username,email,password,location,image,bio) VALUES(?,?,?,?,?,?,?)",
+          data: [
+            data.name,
+            data.username,
+            data.email,
+            data.password,
+            data.location,
+            data.image,
+            data.bio,
+          ],
+        });
 
-    const res = results;
-
-    if (res.length == 0) {
-      const result = await query({
-        query: "INSERT INTO users(name,email) VALUES(?,?)",
-        data: [data.username, data.email],
-      });
-
-      console.log("results", result.insertId);
-
-      return NextResponse.json({ message: "User Created" }, { status: 201 });
+        return NextResponse.json(
+          { message: "User Created", status: 201 },
+          { status: 201 }
+        );
+      } else {
+        return NextResponse.json(
+          { message: "Username Exists!!", status: 500 },
+          { status: 500 }
+        );
+      }
     } else {
-      return NextResponse.json({ message: "User Exists!!" }, { status: 500 });
+      return NextResponse.json(
+        { message: "User Exists!!", status: 500 },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: "Error", error }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error", error, status: 500 },
+      { status: 500 }
+    );
   }
 };

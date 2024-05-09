@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { api } from "../../index";
 import { User, Account } from "next-auth";
 import { query } from "@/config/db";
+import bcrypt from "bcryptjs";
 
 type SignInCallbackParams = {
   user: User;
@@ -17,24 +18,8 @@ const signInCallback: (
     return true;
   }
 
-  // console.log("user", user);
-  // console.log("account", account);
-
   if (account?.provider == "google") {
     try {
-      // const [existingUser]: any = await pool.execute(
-      //   "SELECT * FROM users WHERE email = ?",
-      //   [user.email]
-      // );
-
-      // if (existingUser.length == 0) {
-      //   const [newUser]: any = await pool.execute(
-      //     "INSERT INTO users(name,email) VALUES(?,?)",
-      //     [user.name, user.email]
-      //   );
-
-      //   return true;
-      // }
       const results = await query({
         query: "SELECT * FROM users WHERE email = ?",
         data: [user.email],
@@ -61,15 +46,17 @@ const callbacks = {
   signIn: signInCallback,
   async session({ session }: any) {
     try {
-      const [results]: any = await query({
-        query: "SELECT UserID,AppRole,UserImage FROM users WHERE UserEmail = ?",
+      console.log("session", session);
+      const results = await query({
+        query: "SELECT id, image FROM users WHERE email = ?",
         data: [session.user.email],
       });
-      const data = results;
+      const data = results[0];
 
-      session.user.image = data.UserImage;
-      session.user.id = data.UserID;
-      session.user.role = data.AppRole;
+      console.log("data", data);
+
+      session.user.image = data.image;
+      session.user.id = data.id;
     } catch (error) {
       console.log(error);
     }
@@ -94,20 +81,37 @@ export const options: NextAuthOptions = {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        const body = JSON.stringify({
-          identifier: credentials?.username,
-          password: credentials?.password,
-        });
-        const { data: user } = await api.post(
-          "http://127.0.0.1:1337/api/auth/local",
-          body
-        );
+      async authorize(credentials: any) {
+        try {
+          const existingUser = await query({
+            query: "SELECT * FROM users WHERE email = ? OR username = ?",
+            data: [credentials?.username, credentials?.username],
+          });
 
-        if (user) {
-          return user;
-        } else {
-          return null;
+          const decodedString = Buffer.from(
+            credentials?.password,
+            "base64"
+          ).toString("utf-8");
+
+          var user = existingUser[0];
+          if (existingUser.length > 0) {
+            var user = existingUser[0];
+
+            const isPasswordCorrect = await bcrypt.compare(
+              credentials?.password,
+              user.password
+            );
+
+            if (isPasswordCorrect) {
+              return user;
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        } catch (error: any) {
+          throw new Error(error);
         }
       },
     }),
@@ -126,20 +130,4 @@ export const options: NextAuthOptions = {
     //strategy: "jwt",
     maxAge: 90 * 24 * 60 * 60,
   },
-  // jwt: {
-  //   signingKey: process.env.NEXTAUTH_SECRET,
-  // },
-  // callbacks: {
-  //   async session({ session, token }: any) {
-  //     //const user = token.user as IUser
-  //     session.user = token.user;
-  //     return session;
-  //   },
-  //   async jwt({ token, user }) {
-  //     if (user) {
-  //       token.user = user;
-  //     }
-  //     return token;
-  //   },
-  // },
 };

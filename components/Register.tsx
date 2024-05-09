@@ -8,6 +8,7 @@ import axios from "axios";
 import { LoginHelper } from "@/utils/loginHelper";
 import defaultPic from "./../assets/default-avatar.png";
 import Image from "next/image";
+import bcrypt from "bcryptjs";
 
 const Register: React.FC = () => {
   const [name, setName] = useState("");
@@ -88,28 +89,25 @@ const Register: React.FC = () => {
         "http://localhost:3000/api/upload",
         data1
       );
-      console.log("response", response.data); // Accessing the data property directly
 
-      //console.log("response", res);
-
+      const hashedPass = await bcrypt.hash(password, 5);
       if (response.data.status == 201) {
         const userData = {
           username: username,
           email: email,
-          password: password,
+          password: hashedPass,
           name: name,
           bio: bio,
           location: location,
-          image: [response.data.data],
+          image: response.data.data,
         };
         var body = JSON.stringify(userData);
         const { data } = await api.post(
           "http://localhost:3000/api/register",
           body
         );
-        const user = data;
-        console.log(user, data);
-        if (user) {
+
+        if (data.status === 201) {
           const loginres = await LoginHelper({
             username,
             password,
@@ -174,7 +172,7 @@ const Register: React.FC = () => {
                 <img
                   src={profilePicturePreview}
                   alt="Profile Preview"
-                  className="mt-2 max-w-[8rem] object-cover object-center rounded-[50%]"
+                  className="mt-2 w-32 h-32 object-fill object-center rounded-[50%]"
                 />
               ) : (
                 <>
