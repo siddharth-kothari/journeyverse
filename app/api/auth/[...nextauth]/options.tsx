@@ -48,15 +48,14 @@ const callbacks = {
   signIn: signInCallback,
   async session({ session }: any) {
     try {
-      console.log("session", session);
+      //console.log("session", session);
       const results = await query({
-        query: "SELECT id, image FROM users WHERE email = ?",
+        query: "SELECT id, image, username FROM users WHERE email = ?",
         data: [session.user.email],
       });
       const data = results[0];
 
-      console.log("data", data);
-
+      session.user.username = data.username;
       session.user.image = data.image;
       session.user.id = data.id;
     } catch (error) {

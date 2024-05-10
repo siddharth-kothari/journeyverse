@@ -24,7 +24,7 @@ const Header = () => {
     return <Loading />;
   }
   const user: any = session?.user;
-  console.log(session?.user);
+
   var name = session?.user?.name.split(" ") ?? "User";
 
   var letter = session?.user?.name.charAt(0);
@@ -120,7 +120,7 @@ const Header = () => {
               {isProfileDropdownOpen && (
                 <div className="absolute z-10 left-0 top-[25px] mt-2 py-2 w-36 bg-black rounded-md shadow-lg transform translate-y-1 transition-all ease-in-out duration-300">
                   <Link
-                    href={`/profile/${user?.user?.username}`}
+                    href={`/profile/${session?.user?.username}`}
                     className="cursor-pointer block px-4 py-2 text-sm hover:text-white text-gray-400"
                   >
                     Profile
