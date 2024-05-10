@@ -82,7 +82,7 @@ const Register: React.FC = () => {
       data1.append("files", profilePicture, profilePicture?.name);
 
       const response = await axios.post(
-        "http://localhost:3000/api/upload",
+        `${process.env.NEXT_PUBLIC_URL}api/upload`,
         data1
       );
 
@@ -99,7 +99,7 @@ const Register: React.FC = () => {
         };
         var body = JSON.stringify(userData);
         const { data } = await api.post(
-          "http://localhost:3000/api/register",
+          `${process.env.NEXT_PUBLIC_URL}api/register`,
           body
         );
 

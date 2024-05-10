@@ -1,4 +1,4 @@
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, Profile } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { api } from "../../index";
@@ -9,11 +9,12 @@ import bcrypt from "bcryptjs";
 type SignInCallbackParams = {
   user: User;
   account: Account;
+  profile: Profile;
 };
 
 const signInCallback: (
   params: SignInCallbackParams
-) => Promise<boolean | undefined> = async ({ user, account }) => {
+) => Promise<boolean | undefined> = async ({ user, account, profile }) => {
   if (account?.provider == "credentials") {
     return true;
   }
@@ -27,8 +28,8 @@ const signInCallback: (
       });
 
       if (results.length == 0) {
-        const [newUser]: any = await query({
-          query: "INSERT INTO users(name,username,email) VALUES(?,?)",
+        const newUser = await query({
+          query: "INSERT INTO users(name,username,email) VALUES(?,?,?)",
           data: [user.name, username[0], user.email],
         });
 
@@ -37,7 +38,7 @@ const signInCallback: (
 
       return true;
     } catch (error) {
-      ////console.log("Error saving user: ", error);
+      console.log("Error saving user: ", error);
       return false;
     }
   }
@@ -128,7 +129,7 @@ export const options: NextAuthOptions = {
   // },
 
   session: {
-    //strategy: "jwt",
+    strategy: "jwt",
     maxAge: 90 * 24 * 60 * 60,
   },
 };
