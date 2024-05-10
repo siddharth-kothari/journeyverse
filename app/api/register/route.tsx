@@ -35,26 +35,23 @@ export const POST = async (req: Request) => {
         });
 
         return NextResponse.json(
-          { message: "User Created", status: 201 },
+          { message: "user_created", status: 201 },
           { status: 201 }
         );
       } else {
         return NextResponse.json(
-          { message: "Username Exists!!", status: 500 },
+          { message: "Please select a different Username", status: 500 },
           { status: 500 }
         );
       }
     } else {
       return NextResponse.json(
-        { message: "User Exists!!", status: 500 },
+        { message: "User already exists", status: 500 },
         { status: 500 }
       );
     }
   } catch (error) {
     console.log(error);
-    return NextResponse.json(
-      { message: "Error", error, status: 500 },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error, status: 500 }, { status: 500 });
   }
 };

@@ -7,6 +7,8 @@ import { LoginHelper } from "@/utils/loginHelper";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { google_logo } from "@/assets";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Errors {
   username?: string;
@@ -18,6 +20,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showtoast, setShowToast] = useState(false);
+
   const router = useRouter();
 
   const handleLogin = async (event: React.FormEvent) => {
@@ -42,11 +46,23 @@ const Login = () => {
       password,
     });
 
+    setShowToast(true);
     if (loginres && loginres.ok) {
       setUsername("");
       setPassword("");
       setErrors({});
       router.push("/");
+    } else {
+      toast.error("Invalid Email or Password", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
     // Reset the form fields and errors
   };
@@ -57,6 +73,20 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center bg-white">
+      {showtoast && (
+        <ToastContainer
+          position="top-center"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
+      )}
       <div className="max-w-md w-full mx-5 my-24 md:m-28 p-6 bg-black rounded shadow-md">
         <h2 className="text-3xl font-bold mb-6 text-white text-center">
           Sign In

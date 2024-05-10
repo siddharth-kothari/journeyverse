@@ -20,6 +20,7 @@ const signInCallback: (
 
   if (account?.provider == "google") {
     try {
+      const username = user.email?.split("@") ?? "null";
       const results = await query({
         query: "SELECT * FROM users WHERE email = ?",
         data: [user.email],
@@ -27,8 +28,8 @@ const signInCallback: (
 
       if (results.length == 0) {
         const [newUser]: any = await query({
-          query: "INSERT INTO users(name,email) VALUES(?,?)",
-          data: [user.name, user.email],
+          query: "INSERT INTO users(name,username,email) VALUES(?,?)",
+          data: [user.name, username[0], user.email],
         });
 
         return true;

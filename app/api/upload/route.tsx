@@ -18,14 +18,14 @@ export const POST = async (req: Request) => {
 
   const file = formData.get("files");
   if (!file) {
-    return NextResponse.json({ error: "No files received." }, { status: 400 });
+    return NextResponse.json({ data: "", status: 200 }, { status: 200 });
   }
 
   // Check file type (optional)
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
   if (!allowedMimeTypes.includes(file.type)) {
     return NextResponse.json(
-      { error: "Unsupported file type." },
+      { message: "Unsupported file type.", status: 415 },
       { status: 415 }
     );
   }
@@ -44,7 +44,7 @@ export const POST = async (req: Request) => {
     return NextResponse.json({
       data: filename,
       message: "File uploaded successfully.",
-      status: 201,
+      status: 200,
     });
   } catch (error) {
     console.error("Error occurred:", error);

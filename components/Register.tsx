@@ -9,6 +9,8 @@ import { LoginHelper } from "@/utils/loginHelper";
 import defaultPic from "./../assets/default-avatar.png";
 import Image from "next/image";
 import bcrypt from "bcryptjs";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register: React.FC = () => {
   const [name, setName] = useState("");
@@ -25,6 +27,7 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+  const [showtoast, setShowToast] = useState(false);
 
   const router = useRouter();
 
@@ -74,13 +77,6 @@ const Register: React.FC = () => {
       return;
     }
 
-    // Process the form submission logic here
-    // console.log('Name:', name);
-    // console.log('Username:', username);
-    // console.log('Email:', email);
-    // console.log('Password:', password);
-    // console.log('Profile Picture:', profilePicture);
-
     try {
       const data1: any = new FormData();
       data1.append("files", profilePicture, profilePicture?.name);
@@ -91,7 +87,7 @@ const Register: React.FC = () => {
       );
 
       const hashedPass = await bcrypt.hash(password, 5);
-      if (response.data.status == 201) {
+      if (response.data.status == 200) {
         const userData = {
           username: username,
           email: email,
@@ -126,10 +122,30 @@ const Register: React.FC = () => {
             router.push("/");
           }
         } else {
-          return null;
+          setShowToast(true);
+          toast.error(data.message, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
         }
       } else {
-        alert("something went wrong");
+        setShowToast(true);
+        toast.error(response.data.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
       }
     } catch (error) {
       alert(error);
@@ -161,6 +177,20 @@ const Register: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center">
+      {showtoast && (
+        <ToastContainer
+          position="top-center"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
+      )}
       <div className="max-w-xl w-full mx-5 my-24 md:m-28 p-6 bg-black rounded shadow-md">
         <h2 className="text-3xl font-bold mb-6 text-center text-white">
           Register
