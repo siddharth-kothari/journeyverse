@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import { getProviders } from "next-auth/react";
-import Login from "@/components/login";
+import Login from "@/components/Login";
 
 export const metadata: Metadata = {
   title: "Login | Blog Site",

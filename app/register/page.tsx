@@ -1,6 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
-import Register from "@/components/register";
+import Register from "@/components/Register";
 
 export const metadata: Metadata = {
   title: "Register | Blog Site",
