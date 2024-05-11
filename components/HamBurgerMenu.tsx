@@ -44,10 +44,10 @@ const HamburgerMenu: React.FC = () => {
       </button>
       {isOpen && (
         <div className="absolute z-10 right-0 top-[20px] mt-2 py-2 w-48 hover:text-white text-gray-400 bg-black rounded-md shadow-lg transition duration-300">
-          {status !== "loading" && user && (
+          {status === "authenticated" && user && (
             <>
               <Link
-                href={`/profile/${user?.user?.slug}`}
+                href={`/profile/${user?.username}`}
                 className="cursor-pointer block px-4 py-2 text-sm hover:text-white text-gray-400"
               >
                 Profile
@@ -127,7 +127,7 @@ const HamburgerMenu: React.FC = () => {
           >
             Contact
           </Link>
-          {status != "loading" && user && (
+          {status == "authenticated" && user && (
             <p
               onClick={() => signOut()}
               className="cursor-pointer block px-4 py-2 text-sm hover:text-white text-gray-400"
