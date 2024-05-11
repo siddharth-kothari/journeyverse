@@ -89,7 +89,7 @@ const Header = () => {
               </div>
             </div>
           </>} */}
-        {status !== "loading" && user && (
+        {status == "authenticated" && user && (
           <div className="hidden md:block">
             <div
               className="relative leading-10"
