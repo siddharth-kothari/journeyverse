@@ -1,5 +1,6 @@
-import BlogPostForm from "@/components/BlogPostForm";
+// app/create-post/page.tsx
 import React from "react";
+import BlogPostForm from "@/components/BlogPostForm";
 import { api } from "../api";
 
 export const getCategory = async () => {
@@ -8,9 +9,14 @@ export const getCategory = async () => {
 };
 
 const CreatePost = async () => {
-  const { data } = await getCategory();
+  const data = await getCategory();
 
-  return <BlogPostForm initialData={null} categories={data} />;
+  return (
+    <div>
+      <h1>Create Post</h1>
+      <BlogPostForm initialData={null} categories={data} />
+    </div>
+  );
 };
 
 export default CreatePost;
