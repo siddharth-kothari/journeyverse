@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HamburgerMenu from "@/components/HamBurgerMenu";
 import Link from "next/link";
 import {
@@ -11,14 +11,30 @@ import {
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Loading from "@/app/loading";
+import { api } from "@/app/api";
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [categories, setCategories] = useState<any>([]);
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   // const [searchKey, setSearchKey] = useState("");
 
   const { data: session, status } = useSession();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await api.get("/api/categories");
+        console.log("categories", data); // Ensure that the fetched data is correct
+        setCategories(data); // Set categories directly
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   if (status === "loading") {
     return <Loading />;
@@ -179,32 +195,17 @@ const Header = () => {
                 }`}
               />
             </div>
-            {isDropdownOpen && (
+            {isDropdownOpen && categories && Array.isArray(categories.data) && (
               <div className="absolute z-10 left-0 top-[25px] mt-2 py-2 w-36 bg-black rounded-md shadow-lg transform translate-y-1 transition-all ease-in-out duration-300">
-                <Link
-                  className="block px-4 py-2 text-sm hover:text-white text-gray-400"
-                  href="/category/travel"
-                >
-                  Travel
-                </Link>
-                <Link
-                  className="block px-4 py-2 text-sm hover:text-white text-gray-400"
-                  href="/category/food"
-                >
-                  Food
-                </Link>
-                <Link
-                  className="block px-4 py-2 text-sm hover:text-white text-gray-400"
-                  href="/category/technology"
-                >
-                  Technology
-                </Link>
-                <Link
-                  className="block px-4 py-2 text-sm hover:text-white text-gray-400"
-                  href="/category/fashion"
-                >
-                  Fashion
-                </Link>
+                {categories.data.map((category: any, index: number) => (
+                  <Link
+                    key={index + 1}
+                    href={`/category/${category.slug}`}
+                    className="block px-4 py-2 text-sm hover:text-white text-gray-400"
+                  >
+                    {category.title}
+                  </Link>
+                ))}
               </div>
             )}
           </li>
