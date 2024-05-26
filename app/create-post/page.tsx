@@ -4,7 +4,7 @@ import BlogPostForm from "@/components/BlogPostForm";
 import { getCategory } from "@/actions";
 
 const CreatePost = async () => {
-  const { data } = await getCategory();
+  const data = await getCategory();
 
   return (
     <div>

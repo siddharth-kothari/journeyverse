@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { api } from "@/app/api";
+import { query } from "@/config/db";
 
 const s3 = new S3Client({
   region: process.env.NEXT_AWS_S3_REGION as string,
@@ -61,6 +62,11 @@ export async function getSignedURL(
 }
 
 export const getCategory = async () => {
-  const { data } = await api.get("/api/categories");
-  return data;
+  const categories = await query({
+    query: "SELECT title, slug FROM categories WHERE is_deleted != 1",
+    data: [],
+  });
+  console.log(categories);
+
+  return categories;
 };
