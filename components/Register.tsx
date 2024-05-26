@@ -11,6 +11,8 @@ import Image from "next/image";
 import bcrypt from "bcryptjs";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getSignedURL } from "@/app/register/action";
+import { computeSHA256 } from "@/utils";
 
 const Register: React.FC = () => {
   const [name, setName] = useState("");
@@ -28,6 +30,7 @@ const Register: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [showtoast, setShowToast] = useState(false);
+  const [apiStatus, setApiStatus] = useState(0);
 
   const router = useRouter();
 
@@ -68,9 +71,6 @@ const Register: React.FC = () => {
     if (location.trim() === "") {
       validationErrors.location = "Location Password is required";
     }
-    if (bio.trim() === "") {
-      validationErrors.bio = "Bio Password is required";
-    }
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -78,16 +78,40 @@ const Register: React.FC = () => {
     }
 
     try {
-      const data1: any = new FormData();
-      data1.append("files", profilePicture, profilePicture?.name);
+      var filename;
 
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_URL}api/upload`,
-        data1
-      );
+      if (profilePicture) {
+        const checksum = await computeSHA256(profilePicture);
+        filename = `${Date.now()}_${profilePicture?.name.replaceAll(" ", "_")}`;
+        const signedURLResult = await getSignedURL(
+          "register",
+          "users",
+          filename,
+          profilePicture?.type,
+          profilePicture?.size,
+          checksum
+        );
 
+        if (signedURLResult.failure !== undefined) {
+          console.error(signedURLResult.failure);
+          alert(signedURLResult.failure);
+          return;
+        }
+
+        const url = signedURLResult.success.url;
+        var response;
+        response = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": profilePicture.type,
+          },
+          body: profilePicture,
+        });
+      }
+
+      console.log(response);
       const hashedPass = await bcrypt.hash(password, 5);
-      if (response.data.status == 200) {
+      if (typeof response === "undefined" || response?.status == 200) {
         const userData = {
           username: username,
           email: email,
@@ -95,13 +119,10 @@ const Register: React.FC = () => {
           name: name,
           bio: bio,
           location: location,
-          image: response.data.data,
+          image: filename ?? null,
         };
         var body = JSON.stringify(userData);
-        const { data } = await api.post(
-          `${process.env.NEXT_PUBLIC_URL}api/register`,
-          body
-        );
+        const { data } = await api.post(`/api/register`, body);
 
         if (data.status === 201) {
           const loginres = await LoginHelper({
@@ -135,22 +156,28 @@ const Register: React.FC = () => {
           });
         }
       } else {
-        setShowToast(true);
-        toast.error(response.data.message, {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
+        alert(response?.status + " " + response?.statusText);
       }
-    } catch (error) {
-      alert(error);
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with a status other than 2xx
+          alert(
+            `Message: ${error.response.data.message || error.response.data}`
+          );
+        } else if (error.request) {
+          // No response was received
+          alert("No response received from server.");
+        } else {
+          // Something went wrong setting up the request
+          alert(`Error setting up request: ${error.message}`);
+        }
+      } else {
+        // Handle other errors
+        alert(`Unexpected error: ${error.message}`);
+      }
+      console.error(error.message);
     }
-
     // Reset the form fields and errors
   };
 
@@ -207,7 +234,7 @@ const Register: React.FC = () => {
               ) : (
                 <>
                   <Image
-                    className="mt-2 max-w-[8rem] relative object-cover  object-center rounded-[50%]"
+                    className="mt-2 max-w-[8rem] relative object-cover cursor-pointer object-center rounded-[50%]"
                     src={defaultPic}
                     alt=" Default Profile Preview"
                   />
@@ -344,9 +371,9 @@ const Register: React.FC = () => {
                   onClick={togglePasswordVisibility}
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-white" />
-                  ) : (
                     <EyeIcon className="h-5 w-5 text-white" />
+                  ) : (
+                    <EyeSlashIcon className="h-5 w-5 text-white" />
                   )}
                 </button>
               </div>
@@ -380,9 +407,9 @@ const Register: React.FC = () => {
                   onClick={toggleConfirmPasswordVisibility}
                 >
                   {showConfirmPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-white" />
-                  ) : (
                     <EyeIcon className="h-5 w-5 text-white" />
+                  ) : (
+                    <EyeSlashIcon className="h-5 w-5 text-white" />
                   )}
                 </button>
               </div>
@@ -408,7 +435,7 @@ const Register: React.FC = () => {
                 className={`w-full px-3 py-2 border bg-inherit text-white rounded-md outline-none ${
                   errors.bio ? "border-red-500" : "border-gray-300"
                 }`}
-                placeholder="Confirm your password"
+                placeholder="A little bit about you..."
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               />

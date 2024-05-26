@@ -115,7 +115,7 @@ const Header = () => {
               <div className="flex items-center gap-1 cursor-pointer">
                 <div className="flex items-center gap-3 cursor-pointer">
                   <img
-                    src={`/uploads/${session?.user?.image}`}
+                    src={`${process.env.NEXT_PUBLIC_AWS_S3_URL}/users/${session?.user?.image}`}
                     alt="user image"
                     className="rounded-[50%] w-10 h-10 object-fill"
                     onError={(e) => {
