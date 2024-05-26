@@ -4,18 +4,24 @@ import { NextResponse, NextRequest } from "next/server";
 // This function can be marked `async` if using `await` inside
 export default async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const local_token =
-    request.cookies.get("next-auth.session-token")?.value || "";
-  const prod_token =
-    request.cookies.get("__Secure-next-auth.session-token")?.value || "";
+  var token;
+
+  const env = process.env.NODE_ENV;
+
+  if (env === "development") {
+    token = request.cookies.get("next-auth.session-token")?.value || "";
+  } else {
+    token =
+      request.cookies.get("__Secure-next-auth.session-token")?.value || "";
+  }
 
   const isPublicPath = path === "/login" || path === "/register";
 
-  if (isPublicPath && (local_token || prod_token)) {
+  if (isPublicPath && token) {
     return NextResponse.redirect(new URL("/", request.nextUrl));
   }
 
-  if (!isPublicPath && (!local_token || !prod_token)) {
+  if (!isPublicPath && !token) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
 }

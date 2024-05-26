@@ -4,7 +4,7 @@ import { query } from "@/config/db";
 export const GET = async (req: Request) => {
   try {
     const categories = await query({
-      query: "SELECT title, slug FROM categories WHERE is_deleted != 1",
+      query: "SELECT id, title, slug FROM categories WHERE is_deleted != 1",
       data: [],
     });
 
