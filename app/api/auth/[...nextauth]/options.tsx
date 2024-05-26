@@ -29,8 +29,9 @@ const signInCallback: (
 
       if (results.length == 0) {
         const newUser = await query({
-          query: "INSERT INTO users(name,username,email) VALUES(?,?,?)",
-          data: [user.name, username[0], user.email],
+          query:
+            "INSERT INTO users(name,username,email,provider) VALUES(?,?,?,?)",
+          data: [user.name, username[0], user.email, "google"],
         });
 
         return true;
