@@ -66,7 +66,6 @@ export const getCategory = async () => {
     query: "SELECT title, slug FROM categories WHERE is_deleted != 1",
     data: [],
   });
-  console.log(categories);
 
   return categories;
 };
