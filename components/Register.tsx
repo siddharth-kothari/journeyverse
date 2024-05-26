@@ -11,8 +11,8 @@ import Image from "next/image";
 import bcrypt from "bcryptjs";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getSignedURL } from "@/app/register/action";
 import { computeSHA256 } from "@/utils";
+import { getSignedURL } from "@/actions";
 
 const Register: React.FC = () => {
   const [name, setName] = useState("");
