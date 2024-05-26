@@ -9,6 +9,12 @@ const FroalaEditor = dynamic(() => import("react-froala-wysiwyg"), {
   ssr: false,
 });
 
+interface Errors {
+  title?: string;
+  category?: number;
+  content?: string;
+}
+
 const BlogPostForm = ({ initialData, categories }: any) => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
