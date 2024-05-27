@@ -3,6 +3,8 @@
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { computeSHA256 } from "@/utils";
+import { getSignedURL } from "@/actions";
 
 const BlogEditor = dynamic(() => import("./BlogEditor"), {
   ssr: false,
@@ -43,6 +45,8 @@ const BlogPostForm = ({ initialData, categories }: any) => {
 
   const { data: session, status } = useSession();
 
+  var userid = session?.user?.id;
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     // Add form submission logic here
@@ -76,7 +80,82 @@ const BlogPostForm = ({ initialData, categories }: any) => {
       setErrors(validationErrors);
       return;
     }
-    console.log("content", content);
+
+    var thumbnail_name;
+    var coverimage_name;
+    const checksum1 = await computeSHA256(thumbnail);
+
+    thumbnail_name = `${Date.now()}_${thumbnail?.name.replaceAll(" ", "_")}`;
+    const signedURLResult = await getSignedURL(
+      "add_blog",
+      "blog-thumbnail",
+      thumbnail_name,
+      thumbnail?.type as string,
+      thumbnail?.size as number,
+      checksum1,
+      userid
+    );
+
+    if (signedURLResult.failure !== undefined) {
+      console.error(signedURLResult.failure);
+      alert(signedURLResult.failure);
+      return;
+    }
+
+    const url = signedURLResult.success.url;
+    var thumbnail_res;
+    thumbnail_res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": thumbnail?.type as string,
+      },
+      body: thumbnail,
+    });
+
+    if (typeof thumbnail_res === "undefined" || thumbnail_res?.status === 200) {
+      const checksum = await computeSHA256(coverimage);
+
+      coverimage_name = `${Date.now()}_${coverimage?.name.replaceAll(
+        " ",
+        "_"
+      )}`;
+      const signedURLResult = await getSignedURL(
+        "add_blog",
+        "blog-coverimage",
+        coverimage_name,
+        coverimage?.type as string,
+        coverimage?.size as number,
+        checksum,
+        userid
+      );
+
+      if (signedURLResult.failure !== undefined) {
+        console.error(signedURLResult.failure);
+        alert(signedURLResult.failure);
+        return;
+      }
+
+      const url = signedURLResult.success.url;
+      var coverimage_res;
+      coverimage_res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": coverimage?.type as string,
+        },
+        body: coverimage,
+      });
+
+      if (
+        typeof coverimage_res === "undefined" ||
+        coverimage_res?.status == 200
+      ) {
+        console.log("test");
+      } else {
+        alert(thumbnail_res?.status + " " + thumbnail_res?.statusText);
+      }
+    } else {
+      alert(thumbnail_res?.status + " " + thumbnail_res?.statusText);
+    }
   };
 
   const handleFileChange = (

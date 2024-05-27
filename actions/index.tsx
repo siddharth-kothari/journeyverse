@@ -3,7 +3,6 @@
 import { getServerSession } from "next-auth";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { api } from "@/app/api";
 import { query } from "@/config/db";
 
 const s3 = new S3Client({
@@ -24,15 +23,14 @@ export async function getSignedURL(
   filename: string,
   filetype: string,
   filesize: number,
-  checksum: string
+  checksum: string,
+  userid?: number
 ) {
   const session = await getServerSession();
 
-  //   const filename = `${Date.now()}_${file_name.replaceAll(" ", "_")}`;
-
-  if (route != "register" && !session) {
-    return { failure: "Not Authorised" };
-  }
+  // if (route != "register" && !userid) {
+  //   return { failure: "Not Authorised" };
+  // }
 
   if (filesize > maxFileSize) {
     return { failure: "File too large. Max 5MB is allowed" };
@@ -42,7 +40,9 @@ export async function getSignedURL(
     return { failure: "Invalid file type" };
   }
 
-  const userid = session?.user?.id as unknown as string;
+  const id = userid as unknown as string;
+  console.log("iddddddd", id);
+
   const putObjectCommand = new PutObjectCommand({
     Bucket: process.env.NEXT_AWS_S3_BUCKET_NAME as string,
     Key: folder + "/" + filename,
@@ -50,7 +50,7 @@ export async function getSignedURL(
     ContentType: filetype,
     ChecksumSHA256: checksum,
     Metadata: {
-      userId: userid,
+      //userid: id,
       route: route,
     },
   });
