@@ -10,7 +10,7 @@ const BlogEditor = dynamic(() => import("./BlogEditor"), {
 
 interface Errors {
   title?: string;
-  category?: number;
+  category?: string;
   content?: string;
   excerpt?: string;
   keywords?: string;
@@ -46,6 +46,37 @@ const BlogPostForm = ({ initialData, categories }: any) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     // Add form submission logic here
+
+    const validationErrors: Errors = {};
+    if (title.trim() === "") {
+      validationErrors.title = "Title is required";
+    }
+    if (category.trim() === "") {
+      validationErrors.category = "Category is required";
+    }
+    if (content.trim() === "") {
+      validationErrors.content = "Content is required";
+    }
+    if (excerpt.trim() === "") {
+      validationErrors.excerpt = "Excerpt is required";
+    }
+    if (keywords.trim() === "") {
+      validationErrors.keywords = "Keywords are required";
+    }
+
+    if (!thumbnail) {
+      validationErrors.thumbnail = "Thumbnail is required";
+    }
+
+    if (!coverimage) {
+      validationErrors.coverimage = "Cover Image is required";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    console.log("content", content);
   };
 
   const handleFileChange = (
@@ -126,7 +157,16 @@ const BlogPostForm = ({ initialData, categories }: any) => {
         </div>
 
         <div className="mb-4 w-full">
+          <label
+            htmlFor="content"
+            className="block text-black text-sm font-medium mb-2"
+          >
+            Content
+          </label>
           {isClient && <BlogEditor content={content} setContent={setContent} />}
+          {errors.content && (
+            <p className="text-red-500 text-sm mt-1">{errors.content}</p>
+          )}
         </div>
         <div className="flex justify-between items-center gap-4">
           <div className="mb-4 w-full">
@@ -140,11 +180,15 @@ const BlogPostForm = ({ initialData, categories }: any) => {
               <img
                 src={thumbnailPreview}
                 alt="Thumbnail Preview"
-                className="mt-2 w-32 h-32 object-fill object-center rounded-[50%]"
+                className="mt-2 w-full h-[200px] border rounded-lg object-fill object-center"
               />
             ) : (
               <>
-                <div className="w-full h-[200px] border rounded-lg bg-white relative">
+                <div
+                  className={`w-full h-[200px] border rounded-lg bg-white relative ${
+                    errors.thumbnail ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
                   <label
                     className="absolute bottom-0 overflow-hidden text-center cursor-pointer hover:cursor-pointer w-full h-[200px] flex justify-center items-center text-black"
                     htmlFor="thumbnail"
@@ -179,11 +223,15 @@ const BlogPostForm = ({ initialData, categories }: any) => {
               <img
                 src={coverimagePreview}
                 alt="Cover Image Preview"
-                className="mt-2 w-32 h-32 object-fill object-center rounded-[50%]"
+                className="mt-2 w-full h-[200px] border rounded-lg object-fit object-center"
               />
             ) : (
               <>
-                <div className="w-full h-[200px] border rounded-lg bg-white relative">
+                <div
+                  className={`w-full h-[200px] border rounded-lg bg-white relative ${
+                    errors.coverimage ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
                   <label
                     className="absolute bottom-0 overflow-hidden text-center cursor-pointer hover:cursor-pointer w-full h-[200px] flex justify-center items-center text-black"
                     htmlFor="coverimage"
@@ -249,6 +297,15 @@ const BlogPostForm = ({ initialData, categories }: any) => {
           {errors.keywords && (
             <p className="text-red-500 text-sm mt-1">{errors.keywords}</p>
           )}
+        </div>
+
+        <div className="w-full flex">
+          <button
+            type="submit"
+            className=" w-max mx-auto bg-black text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            Post
+          </button>
         </div>
       </form>
     </div>

@@ -63,7 +63,7 @@ export async function getSignedURL(
 
 export const getCategory = async () => {
   const categories = await query({
-    query: "SELECT title, slug FROM categories WHERE is_deleted != 1",
+    query: "SELECT id, title, slug FROM categories WHERE is_deleted != 1",
     data: [],
   });
 
