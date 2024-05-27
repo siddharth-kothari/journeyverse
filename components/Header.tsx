@@ -17,10 +17,6 @@ const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [categories, setCategories] = useState<any>([]);
-  // const [isSearchOpen, setIsSearchOpen] = useState(false);
-  // const [searchKey, setSearchKey] = useState("");
-
-  const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -36,15 +32,11 @@ const Header = () => {
     fetchCategories();
   }, []);
 
-  if (status === "loading") {
-    return <Loading />;
-  }
+  const { data: session, status } = useSession();
+
   const user: any = session?.user;
-
-  var name = session?.user?.name.split(" ") ?? "User";
-
-  var letter = session?.user?.name.charAt(0);
-
+  const name = user?.name.split(" ") ?? "User";
+  const letter = user?.name.charAt(0);
   const router = useRouter();
 
   const toggleDropdown = () => {
@@ -56,11 +48,14 @@ const Header = () => {
   };
 
   const handleSearch = (keyword: string) => {
-    // setSearchKey(keyword)
     setTimeout(() => {
       router.push(`/?search=${keyword}`);
     }, 1000);
   };
+
+  if (status === "loading") {
+    return <Loading />;
+  }
 
   return (
     <nav
@@ -88,24 +83,7 @@ const Header = () => {
           <MagnifyingGlassIcon className="h-5 w-5 absolute top-[2px] right-2 cursor-pointer text-black" />
         </div>
 
-        {/* {isSearchOpen && <>
-          onClick={()=>handleSearchDropdown()}
-            <div className='z-20 w-[100%] h-screen fixed overflow-hidden scroll-none top-0 right-0 block bg-[#151515] h-min-screen'>
-              <XMarkIcon className="h-6 w-6 cursor-pointer mx-auto mt-8" onClick={()=>handleSearchClose()}/>
-              <div className='grid h-full place-content-center'>
-                <p className='text-center mb-5'>Search for:</p>
-                <input
-                  type='search'
-                  name='key'
-                  id='key'
-                  className='outline-none border-b bg-inherit px-1'
-                  onChange={(e)=>handleSearch(e.target.value)}
-                  placeholder='Type Keywords'
-                />
-              </div>
-            </div>
-          </>} */}
-        {status == "authenticated" && user && (
+        {status === "authenticated" && user && (
           <div className="hidden md:block">
             <div
               className="relative leading-10"
@@ -115,7 +93,7 @@ const Header = () => {
               <div className="flex items-center gap-1 cursor-pointer">
                 <div className="flex items-center gap-3 cursor-pointer">
                   <img
-                    src={`${process.env.NEXT_PUBLIC_AWS_S3_URL}/users/${session?.user?.image}`}
+                    src={`${process.env.NEXT_PUBLIC_AWS_S3_URL}/users/${user.image}`}
                     alt="user image"
                     className="rounded-[50%] w-10 h-10 object-fill"
                     onError={(e) => {
@@ -123,7 +101,7 @@ const Header = () => {
                       e.currentTarget.onerror = null;
                     }}
                   />
-                  Hi, {name[0]}{" "}
+                  Hi, {name[0]}
                 </div>
                 <ChevronDownIcon
                   className={`h-4 w-4 ${
@@ -136,7 +114,7 @@ const Header = () => {
               {isProfileDropdownOpen && (
                 <div className="absolute z-10 left-0 top-[25px] mt-2 py-2 w-36 bg-black rounded-md shadow-lg transform translate-y-1 transition-all ease-in-out duration-300">
                   <Link
-                    href={`/profile/${session?.user?.username}`}
+                    href={`/profile/${user.username}`}
                     className="cursor-pointer block px-4 py-2 text-sm hover:text-white text-gray-400"
                   >
                     Profile
