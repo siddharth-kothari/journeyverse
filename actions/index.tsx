@@ -69,3 +69,32 @@ export const getCategory = async () => {
 
   return categories;
 };
+
+export const createPost = async (data: any) => {
+  const res = JSON.parse(data);
+  console.log("dataaaaa", res.title);
+  let slug = res.title.toLowerCase();
+
+  // Remove special characters (keep alphanumeric and spaces)
+  slug = slug.replace(/[^a-z0-9\s-]/g, "");
+
+  // Replace spaces and multiple hyphens with a single hyphen
+  slug = slug.trim().replace(/\s+/g, "-").replace(/-+/g, "-");
+  const post = await query({
+    query:
+      "INSERT INTO posts(title,slug,content,category_id,author_id,thumbnail,coverimage,keywords,excerpt) VALUES (?,?,?,?,?,?,?,?,?)",
+    data: [
+      res.title,
+      slug,
+      res.content,
+      res.category,
+      res.userid,
+      res.thumbnail_name,
+      res.coverimage_name,
+      res.keywords,
+      res.excerpt,
+    ],
+  });
+
+  return post;
+};

@@ -4,7 +4,8 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { computeSHA256 } from "@/utils";
-import { getSignedURL } from "@/actions";
+import { createPost, getSignedURL } from "@/actions";
+import { api } from "@/app/api";
 
 const BlogEditor = dynamic(() => import("./BlogEditor"), {
   ssr: false,
@@ -150,6 +151,20 @@ const BlogPostForm = ({ initialData, categories }: any) => {
         coverimage_res?.status == 200
       ) {
         console.log("test");
+        const body = JSON.stringify({
+          title,
+          category,
+          content,
+          thumbnail_name,
+          coverimage_name,
+          excerpt,
+          keywords,
+          userid,
+        });
+
+        // const res = await createPost(data);
+        const { data } = await api.post(`/api/create-post`, body);
+        console.log("resssss", data);
       } else {
         alert(thumbnail_res?.status + " " + thumbnail_res?.statusText);
       }

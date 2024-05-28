@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { api } from "..";
 import { query } from "@/config/db";
 
 export const POST = async (req: Request) => {
