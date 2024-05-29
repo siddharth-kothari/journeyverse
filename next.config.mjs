@@ -14,6 +14,15 @@ const nextConfig = {
             },
         ];
     },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'journeyverse.s3.us-west-1.amazonaws.com',
+                port: '',
+            },
+        ],
+    },
 };
 
 export default nextConfig;

@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { computeSHA256 } from "@/utils";
 import { createPost, getSignedURL } from "@/actions";
 import { api } from "@/app/api";
+import { useRouter } from "next/navigation";
 
 const BlogEditor = dynamic(() => import("./BlogEditor"), {
   ssr: false,
@@ -47,6 +48,8 @@ const BlogPostForm = ({ initialData, categories }: any) => {
   const { data: session, status } = useSession();
 
   var userid = session?.user?.id;
+
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -164,7 +167,9 @@ const BlogPostForm = ({ initialData, categories }: any) => {
 
         // const res = await createPost(data);
         const { data } = await api.post(`/api/create-post`, body);
-        console.log("resssss", data);
+        if (data.status === 200) {
+          router.push(`/post/${data.data}`);
+        }
       } else {
         alert(thumbnail_res?.status + " " + thumbnail_res?.statusText);
       }

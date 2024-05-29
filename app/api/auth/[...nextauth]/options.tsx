@@ -123,7 +123,7 @@ export const options: NextAuthOptions = {
     }),
   ],
   callbacks: callbacks as Record<string, (params: any) => Promise<any>>,
-  secret: process.env.SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   // pages: {
   //   signIn: "/login",
   // },

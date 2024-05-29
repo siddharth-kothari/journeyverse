@@ -1,7 +1,8 @@
+import { getAllPosts } from "@/actions";
+import AllBlogs from "@/components/AllBlogs";
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24"></main>
-  );
+export default async function Home() {
+  const posts = await getAllPosts();
+  return <AllBlogs posts={posts} />;
 }
