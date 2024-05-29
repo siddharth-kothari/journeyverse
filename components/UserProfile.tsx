@@ -16,10 +16,10 @@ interface IPropType {
 const UserProfile = ({ user }: any) => {
   // console.log('user',user);
   return (
-    <div className="w-full lg:w[70%]">
+    <div className=" max-w-7xl mt-14 mx-auto">
       <div className="m-5 flex justify-between items-center">
         <img
-          className="w-[100px] md:w-[150px]"
+          className="w-[100px] md:w-[150px] rounded-[50%]"
           src={`${process.env.NEXT_PUBLIC_AWS_S3_URL}/users/${user.image}`}
           alt={`image of ${user.name}`}
           onError={(e) => {

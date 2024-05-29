@@ -1,4 +1,6 @@
+import { getCategoryDetails, getCategoryPosts } from "@/actions";
 import { api } from "@/app/api";
+import AllBlogs from "@/components/AllBlogs";
 import CategoryDetail from "@/components/CategoryDetail";
 
 interface IPropType {
@@ -6,25 +8,16 @@ interface IPropType {
   searchParams: any;
 }
 
-export default async function CategoryPage({
-  params,
-  searchParams,
-}: IPropType) {
+export default async function CategoryPage({ params }: any) {
   const { slug } = params;
 
-  // const { page } = searchParams;
-  // const { data } = await getPosts(slug, page);
-
-  // console.log("page", page);
-  // const category = await getCategory(slug);
-
-  // const categoryData = category.data;
-  // const posts = data.data;
-  // const pagination = data.meta.pagination;
+  const posts = await getCategoryPosts(slug);
+  const details = await getCategoryDetails(slug);
 
   return (
     <>
-      <CategoryDetail />
+      <CategoryDetail data={details[0]} />
+      <AllBlogs posts={posts} />
     </>
   );
 }

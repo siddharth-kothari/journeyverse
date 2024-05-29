@@ -127,3 +127,32 @@ export const getAllPosts = async () => {
 
   return posts;
 };
+
+export const getSinglePost = async (slug: string) => {
+  const post = await query({
+    query:
+      "SELECT p.*,c.title as category, u.name as author_name, c.slug as cat_slug, u.image as author_image, u.bio as author_bio FROM posts p JOIN categories c ON c.id = p.category_id JOIN users u ON u.id = p.author_id WHERE p.slug = ? AND p.is_deleted != 1",
+    data: [slug],
+  });
+
+  return post;
+};
+
+export const getCategoryPosts = async (slug: string) => {
+  const posts = await query({
+    query:
+      "SELECT p.*,c.title as category FROM posts p JOIN categories c ON c.id = p.category_id WHERE c.slug = ? AND p.is_deleted != 1",
+    data: [slug],
+  });
+
+  return posts;
+};
+
+export const getCategoryDetails = async (slug: string) => {
+  const details = await query({
+    query: "SELECT * FROM categories WHERE slug = ? AND is_deleted != 1",
+    data: [slug],
+  });
+
+  return details;
+};
